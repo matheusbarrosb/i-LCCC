@@ -33,7 +33,7 @@ iLCCC_abgrowth <- function(mids = NULL,
   
   dt <- ((mids+binsize)/GR) - ((mids-binsize)/GR) # time interval between ages
   
-  lnN <- log(catch+1)/dt
+  lnN <- log((catch+1)/dt)
   
   df <- data.frame(lnN, rel.age)
   df <- na.exclude(df)
