@@ -4,13 +4,12 @@
 
 # this is a variation of the standard version (bootstrap only)
 # that uses absolute growth (mm/day for example)instead of
-# von Bert growth
+# von Bert
 
 iLCCC_abgrowth <- function(mids = NULL,
                            catch = NULL,
                            GR = NULL,
                            t0 = NULL,
-                           binsize = NULL,
                            ex.points = 1,
                            plot = FALSE,
                            N_runs = 1000, plot.xlow.lim = NULL, plot.xup.lim = NULL, plot.ylow.lim = NULL, plot.yup.lim = NULL) {
@@ -26,14 +25,15 @@ iLCCC_abgrowth <- function(mids = NULL,
   mids <- as.vector(mids)
   catch <- as.vector(catch)
   #upper and lower limits of each size class
-  class.min <- mids - (binsize/2)
-  class.max <- mids + (binsize/2)
+  binsize <- mids[2] - mids[1]
+  class.min <- mids - (binsize)
+  class.max <- mids + (binsize)
   
   rel.age <- mids/GR # age at any given size class IN DAYS
   
-  # if a midlength is larger than the asympotic size, it is simply excluded from subsequent analysis
+  dt <- ((mids+binsize)/GR) - ((mids-binsize)/GR) # time interval between ages
   
-  lnN <- log(catch+1)
+  lnN <- log(catch+1)/dt
   
   df <- data.frame(lnN, rel.age)
   df <- na.exclude(df)
@@ -57,7 +57,7 @@ iLCCC_abgrowth <- function(mids = NULL,
   
   # some Infs and NaNs can pop up during the process when logarithms end up as imaginary or complex numbers
   
-  df.selec.cc <- subset(df.selec.cc, df.selec.cc$yvar > 1)
+  #df.selec.cc <- subset(df.selec.cc, df.selec.cc$yvar > 1)
   
   lm.cc <- lm(yvar ~ xvar,
               data = df.selec.cc)
@@ -137,4 +137,12 @@ iLCCC_abgrowth <- function(mids = NULL,
   return(output)
   
 }
-# end of function ---------------------------------------------------------------
+# end of function --------------------------------------------------------------
+
+# example
+cc.LAGRHO <- iLCCC_abgrowth(mids = md,
+                            catch = ct,
+                            GR = 0.8, t0 = FALSE, plot = TRUE,
+                            N_runs = 1000, ex.points = 0)
+
+
